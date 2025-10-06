@@ -176,4 +176,17 @@ public class EventsControllerTests
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
+
+    [Fact]
+    public void EventsController_HasAuthorizeAttribute()
+    {
+        // Arrange
+        var controllerType = typeof(EventsController);
+
+        // Act
+        var hasAuthorizeAttribute = controllerType.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), true).Any();
+
+        // Assert
+        Assert.True(hasAuthorizeAttribute, "EventsController should have [Authorize] attribute to require authentication");
+    }
 }

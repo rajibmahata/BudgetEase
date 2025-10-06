@@ -9,6 +9,7 @@ namespace BudgetEase.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class EventsController : ControllerBase
 {
     private readonly IEventRepository _eventRepository;
