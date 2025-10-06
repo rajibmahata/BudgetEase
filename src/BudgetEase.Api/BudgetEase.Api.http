@@ -1,0 +1,6 @@
+@BudgetEase.Api_HostAddress = http://localhost:5108
+
+GET {{BudgetEase.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
