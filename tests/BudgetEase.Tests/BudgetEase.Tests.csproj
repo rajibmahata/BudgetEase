@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="bunit" Version="1.33.4" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
@@ -24,6 +25,7 @@
     <ProjectReference Include="..\..\src\BudgetEase.Api\BudgetEase.Api.csproj" />
     <ProjectReference Include="..\..\src\BudgetEase.Core\BudgetEase.Core.csproj" />
     <ProjectReference Include="..\..\src\BudgetEase.Infrastructure\BudgetEase.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\BudgetEase.Web\BudgetEase.Web.csproj" />
   </ItemGroup>
 
 </Project>
