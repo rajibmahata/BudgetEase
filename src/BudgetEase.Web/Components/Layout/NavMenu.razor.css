@@ -95,6 +95,7 @@
         align-items: center;
         line-height: 3rem;
         width: 100%;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
     }
 
 .nav-item ::deep a.active {
@@ -109,6 +110,7 @@
 
 .nav-scrollable {
     display: none;
+    transition: opacity 0.2s ease-in-out;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
