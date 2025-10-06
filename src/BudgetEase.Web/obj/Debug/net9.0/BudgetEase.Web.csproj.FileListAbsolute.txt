@@ -197,8 +197,6 @@
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/53525xf9gk-h1s4sie4z3.gz
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/l7xxyf0pji-63fj8s7r0e.gz
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/zs354c4c3o-0j3bgjxly4.gz
-/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/6gr4qzunvv-8vblqxc4n5.gz
-/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/rw3h4p006d-8vblqxc4n5.gz
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/staticwebassets.build.json
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/staticwebassets.build.json.cache
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/staticwebassets.development.json
@@ -209,3 +207,5 @@
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/BudgetEase.Web.pdb
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/BudgetEase.Web.genruntimeconfig.cache
 /home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/ref/BudgetEase.Web.dll
+/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/6gr4qzunvv-mew8kndpre.gz
+/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/obj/Debug/net9.0/compressed/rw3h4p006d-mew8kndpre.gz
