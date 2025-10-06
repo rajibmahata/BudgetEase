@@ -40,8 +40,28 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Events/Create.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FdmVudHMvQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Events/Details.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FdmVudHMvRGV0YWlscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Events/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FdmVudHMvSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Expenses/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FeHBlbnNlcy9JbmRleC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Ib21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Vendors/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9WZW5kb3JzL0luZGV4LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/runner/work/BudgetEase/BudgetEase/src/BudgetEase.Web/Components/Pages/Weather.razor]

@@ -1,0 +1,126 @@
+@page "/events"
+@using BudgetEase.Core.Entities
+@using BudgetEase.Core.Interfaces
+@inject IEventRepository EventRepository
+@inject IExpenseRepository ExpenseRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Events - BudgetEase</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5">
+                <i class="bi bi-calendar-event"></i> My Events
+            </h1>
+        </div>
+        <div class="col-auto">
+            <a href="/events/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create New Event
+            </a>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (events == null || !events.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No events found. Create your first event to get started!
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var evt in events)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">@evt.Name</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Type:</strong> @evt.Type</p>
+                            <p class="mb-2"><strong>Date:</strong> @evt.EventDate.ToString("MMM dd, yyyy")</p>
+                            <p class="mb-2"><strong>Venue:</strong> @evt.Venue</p>
+                            <hr />
+                            <p class="mb-1"><strong>Budget:</strong> ₹@evt.BudgetLimit.ToString("N2")</p>
+                            <p class="mb-1"><strong>Spent:</strong> ₹@eventExpenses[evt.Id].ToString("N2")</p>
+                            <p class="mb-0"><strong>Remaining:</strong> ₹@((evt.BudgetLimit - eventExpenses[evt.Id]).ToString("N2"))</p>
+                            
+                            @{
+                                var percentageUsed = evt.BudgetLimit > 0 ? (eventExpenses[evt.Id] / evt.BudgetLimit * 100) : 0;
+                            }
+                            <div class="progress mt-2" style="height: 20px;">
+                                <div class="progress-bar @GetProgressBarClass(percentageUsed)" 
+                                     role="progressbar" 
+                                     style="width: @percentageUsed.ToString("F0")%"
+                                     aria-valuenow="@percentageUsed" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    @percentageUsed.ToString("F0")%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <a href="/events/details/@evt.Id" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Event>? events;
+    private Dictionary<int, decimal> eventExpenses = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        isLoading = true;
+        try
+        {
+            var userId = "default-user"; // TODO: Get from authentication
+            events = (await EventRepository.GetAllByUserIdAsync(userId)).ToList();
+            
+            foreach (var evt in events)
+            {
+                var totalSpent = await ExpenseRepository.GetTotalSpentByEventIdAsync(evt.Id);
+                eventExpenses[evt.Id] = totalSpent;
+            }
+        }
+        catch (Exception)
+        {
+            events = new List<Event>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetProgressBarClass(decimal percentage)
+    {
+        if (percentage >= 90) return "bg-danger";
+        if (percentage >= 80) return "bg-warning";
+        return "bg-success";
+    }
+}

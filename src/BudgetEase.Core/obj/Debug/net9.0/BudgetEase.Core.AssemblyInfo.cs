@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BudgetEase.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a78913759b1ab98d32f42e0fd75832a862431ccd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3578af13ccf54f450ae238363c3ac355fed8ccd")]
 [assembly: System.Reflection.AssemblyProductAttribute("BudgetEase.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BudgetEase.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

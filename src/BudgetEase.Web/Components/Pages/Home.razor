@@ -1,7 +1,105 @@
 ﻿@page "/"
+@using BudgetEase.Core.Interfaces
+@inject IEventRepository EventRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>BudgetEase - Dashboard</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">
+                <i class="bi bi-cash-coin"></i> BudgetEase Dashboard
+            </h1>
+            <p class="lead">Your Event Expense Tracking & Management Solution</p>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Welcome to BudgetEase!</h5>
+                    <p class="card-text">
+                        BudgetEase helps you efficiently manage budgets, track expenses, handle vendor communications, 
+                        and monitor financial summaries for all your events in one place.
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="/events" class="btn btn-primary">
+                            <i class="bi bi-calendar-event"></i> Manage Events
+                        </a>
+                        <a href="/expenses" class="btn btn-outline-primary">
+                            <i class="bi bi-wallet2"></i> Track Expenses
+                        </a>
+                        <a href="/vendors" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Manage Vendors
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (upcomingEvents != null && upcomingEvents.Any())
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="mb-3">Upcoming Events</h3>
+                <div class="row">
+                    @foreach (var evt in upcomingEvents)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title">@evt.Name</h5>
+                                    <p class="card-text">
+                                        <strong>Type:</strong> @evt.Type<br/>
+                                        <strong>Date:</strong> @evt.EventDate.ToString("MMM dd, yyyy")<br/>
+                                        <strong>Venue:</strong> @evt.Venue
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="/events/details/@evt.Id" class="btn btn-sm btn-primary w-100">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No events found. 
+                    <a href="/events" class="alert-link">Create your first event</a> to get started!
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<BudgetEase.Core.Entities.Event>? upcomingEvents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var userId = "default-user"; // TODO: Get from authentication
+            var allEvents = await EventRepository.GetAllByUserIdAsync(userId);
+            upcomingEvents = allEvents
+                .Where(e => e.EventDate >= DateTime.Today)
+                .OrderBy(e => e.EventDate)
+                .Take(3)
+                .ToList();
+        }
+        catch (Exception)
+        {
+            upcomingEvents = new List<BudgetEase.Core.Entities.Event>();
+        }
+    }
+}

@@ -1,0 +1,102 @@
+@page "/events/create"
+@using BudgetEase.Core.Entities
+@using BudgetEase.Core.Interfaces
+@inject IEventRepository EventRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Create Event - BudgetEase</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Create New Event</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@newEvent" OnValidSubmit="@HandleSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger" />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Event Name *</label>
+                            <InputText id="name" class="form-control" @bind-Value="newEvent.Name" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="type" class="form-label">Event Type *</label>
+                            <InputSelect id="type" class="form-select" @bind-Value="newEvent.Type">
+                                <option value="">-- Select Type --</option>
+                                <option value="Marriage">Marriage</option>
+                                <option value="Birthday">Birthday</option>
+                                <option value="Anniversary">Anniversary</option>
+                                <option value="Custom">Custom</option>
+                            </InputSelect>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="eventDate" class="form-label">Event Date *</label>
+                            <InputDate id="eventDate" class="form-control" @bind-Value="newEvent.EventDate" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="venue" class="form-label">Venue</label>
+                            <InputText id="venue" class="form-control" @bind-Value="newEvent.Venue" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="budgetLimit" class="form-label">Budget Limit (₹) *</label>
+                            <InputNumber id="budgetLimit" class="form-control" @bind-Value="newEvent.BudgetLimit" />
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/events" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span>Creating...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle"></i>
+                                    <span>Create Event</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Event newEvent = new Event 
+    { 
+        EventDate = DateTime.Today.AddDays(30),
+        OwnerId = "default-user" // TODO: Get from authentication
+    };
+    private bool isSubmitting = false;
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        try
+        {
+            await EventRepository.CreateAsync(newEvent);
+            Navigation.NavigateTo("/events");
+        }
+        catch (Exception)
+        {
+            // TODO: Show error message
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

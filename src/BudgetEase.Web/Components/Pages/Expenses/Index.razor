@@ -1,0 +1,31 @@
+@page "/expenses"
+@using BudgetEase.Core.Entities
+@using BudgetEase.Core.Interfaces
+@inject IExpenseRepository ExpenseRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Expenses - BudgetEase</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5">
+                <i class="bi bi-wallet2"></i> Expense Tracker
+            </h1>
+        </div>
+        <div class="col-auto">
+            <a href="/expenses/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add Expense
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Expense tracking functionality is available. Navigate to an event's details page to manage expenses for that event.
+    </div>
+</div>
+
+@code {
+    // Placeholder for expenses page
+}

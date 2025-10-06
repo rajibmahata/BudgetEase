@@ -1,0 +1,203 @@
+@page "/events/details/{Id:int}"
+@using BudgetEase.Core.Entities
+@using BudgetEase.Core.Interfaces
+@inject IEventRepository EventRepository
+@inject IExpenseRepository ExpenseRepository
+@inject IVendorRepository VendorRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>@(currentEvent?.Name ?? "Event Details") - BudgetEase</PageTitle>
+
+<div class="container mt-4">
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (currentEvent == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> Event not found!
+        </div>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-5">@currentEvent.Name</h1>
+                <p class="text-muted">@currentEvent.Type Event</p>
+            </div>
+            <div class="col-auto">
+                <a href="/events" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Events
+                </a>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Event Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Date:</strong> @currentEvent.EventDate.ToString("MMMM dd, yyyy")</p>
+                        <p><strong>Venue:</strong> @currentEvent.Venue</p>
+                        <p><strong>Created:</strong> @currentEvent.CreatedAt.ToString("MMM dd, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Budget Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Total Budget:</strong> ₹@currentEvent.BudgetLimit.ToString("N2")</p>
+                        <p><strong>Total Spent:</strong> ₹@totalSpent.ToString("N2")</p>
+                        <p><strong>Remaining:</strong> ₹@((currentEvent.BudgetLimit - totalSpent).ToString("N2"))</p>
+                        
+                        @{
+                            var percentageUsed = currentEvent.BudgetLimit > 0 ? (totalSpent / currentEvent.BudgetLimit * 100) : 0;
+                        }
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar @GetProgressBarClass(percentageUsed)" 
+                                 role="progressbar" 
+                                 style="width: @percentageUsed.ToString("F0")%"
+                                 aria-valuenow="@percentageUsed" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                @percentageUsed.ToString("F0")% Used
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Expenses</h5>
+                        <a href="/expenses/create?eventId=@Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus"></i> Add
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        @if (expenses == null || !expenses.Any())
+                        {
+                            <p class="text-muted">No expenses yet.</p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var expense in expenses.Take(5))
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@expense.Description</strong>
+                                            <span class="badge bg-primary">₹@expense.ActualCost.ToString("N2")</span>
+                                        </div>
+                                        <small class="text-muted">@expense.Category - @expense.PaymentStatus</small>
+                                    </div>
+                                }
+                            </div>
+                            @if (expenses.Count() > 5)
+                            {
+                                <a href="/expenses?eventId=@Id" class="btn btn-sm btn-link mt-2">View all @expenses.Count() expenses</a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Vendors</h5>
+                        <a href="/vendors/create?eventId=@Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus"></i> Add
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        @if (vendors == null || !vendors.Any())
+                        {
+                            <p class="text-muted">No vendors yet.</p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var vendor in vendors.Take(5))
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@vendor.Name</strong>
+                                            <span class="badge bg-secondary">@vendor.ServiceType</span>
+                                        </div>
+                                        <small class="text-muted">@vendor.ContactNumber</small>
+                                    </div>
+                                }
+                            </div>
+                            @if (vendors.Count() > 5)
+                            {
+                                <a href="/vendors?eventId=@Id" class="btn btn-sm btn-link mt-2">View all @vendors.Count() vendors</a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Event? currentEvent;
+    private IEnumerable<Expense>? expenses;
+    private IEnumerable<Vendor>? vendors;
+    private decimal totalSpent;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventDetails();
+    }
+
+    private async Task LoadEventDetails()
+    {
+        isLoading = true;
+        try
+        {
+            currentEvent = await EventRepository.GetByIdAsync(Id);
+            if (currentEvent != null)
+            {
+                expenses = await ExpenseRepository.GetAllByEventIdAsync(Id);
+                vendors = await VendorRepository.GetAllByEventIdAsync(Id);
+                totalSpent = await ExpenseRepository.GetTotalSpentByEventIdAsync(Id);
+            }
+        }
+        catch (Exception)
+        {
+            currentEvent = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetProgressBarClass(decimal percentage)
+    {
+        if (percentage >= 90) return "bg-danger";
+        if (percentage >= 80) return "bg-warning";
+        return "bg-success";
+    }
+}

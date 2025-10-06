@@ -1,0 +1,31 @@
+@page "/vendors"
+@using BudgetEase.Core.Entities
+@using BudgetEase.Core.Interfaces
+@inject IVendorRepository VendorRepository
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>Vendors - BudgetEase</PageTitle>
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5">
+                <i class="bi bi-people"></i> Vendor Management
+            </h1>
+        </div>
+        <div class="col-auto">
+            <a href="/vendors/create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add Vendor
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Vendor management functionality is available. Navigate to an event's details page to manage vendors for that event.
+    </div>
+</div>
+
+@code {
+    // Placeholder for vendors page
+}
