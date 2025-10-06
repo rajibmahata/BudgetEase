@@ -1,4 +1,8 @@
 @page "/login"
+@using BudgetEase.Web.Services
+@inject AuthStateService AuthState
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
 
 <PageTitle>Login - BudgetEase</PageTitle>
 
@@ -9,20 +13,20 @@
             <p>Sign in to manage your event budgets</p>
         </div>
 
-        <form class="auth-form">
+        <form class="auth-form" @onsubmit="HandleLogin">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-control" placeholder="Enter your email" required />
+                <input type="email" class="form-control" placeholder="Enter your email" @bind="email" required />
             </div>
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-control" placeholder="Enter your password" required />
+                <input type="password" class="form-control" placeholder="Enter your password" @bind="password" required />
             </div>
 
             <div class="form-options">
                 <label class="checkbox-label">
-                    <input type="checkbox" />
+                    <input type="checkbox" @bind="rememberMe" />
                     <span>Remember me</span>
                 </label>
                 <a href="#" class="forgot-link">Forgot password?</a>
@@ -36,6 +40,22 @@
         </div>
     </div>
 </div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private bool rememberMe = false;
+
+    private void HandleLogin()
+    {
+        // For now, accept any email/password combination for demo purposes
+        // Extract username from email (part before @)
+        var userName = email.Contains('@') ? email.Split('@')[0] : email;
+        
+        AuthState.Login(userName);
+        Navigation.NavigateTo("/");
+    }
+}
 
 <style>
     .auth-container {

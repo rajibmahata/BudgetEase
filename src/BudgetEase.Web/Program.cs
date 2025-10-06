@@ -21,6 +21,9 @@ builder.Services.AddHttpClient<ExpenseService>(client =>
     client.BaseAddress = new Uri("http://localhost:5108");
 });
 
+// Add authentication state service
+builder.Services.AddSingleton<AuthStateService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
