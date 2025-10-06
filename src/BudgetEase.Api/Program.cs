@@ -4,6 +4,7 @@ using BudgetEase.Infrastructure.Data;
 using BudgetEase.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static BudgetEase.Infrastructure.Data.DatabaseSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +65,9 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
+    
+    // Seed the database with sample data
+    await DatabaseSeeder.SeedAsync(app.Services);
 }
 
 app.Run();
