@@ -10,15 +10,15 @@ builder.Services.AddRazorComponents()
 // Configure HttpClient for API calls
 builder.Services.AddHttpClient<EventService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7000");
+    client.BaseAddress = new Uri("http://localhost:5108");
 });
 builder.Services.AddHttpClient<VendorService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7000");
+    client.BaseAddress = new Uri("http://localhost:5108");
 });
 builder.Services.AddHttpClient<ExpenseService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7000");
+    client.BaseAddress = new Uri("http://localhost:5108");
 });
 
 var app = builder.Build();
