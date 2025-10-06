@@ -1,10 +1,25 @@
 using BudgetEase.Web.Components;
+using BudgetEase.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Configure HttpClient for API calls
+builder.Services.AddHttpClient<EventService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7000");
+});
+builder.Services.AddHttpClient<VendorService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7000");
+});
+builder.Services.AddHttpClient<ExpenseService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7000");
+});
 
 var app = builder.Build();
 
