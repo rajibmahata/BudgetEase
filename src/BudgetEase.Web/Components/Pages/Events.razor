@@ -1,0 +1,102 @@
+@page "/events"
+
+<PageTitle>Events - BudgetEase</PageTitle>
+
+<div class="page-header">
+    <h1>📅 Event Management</h1>
+    <p>Create and manage your events with budget tracking</p>
+</div>
+
+<div class="content-card">
+    <div class="card-header">
+        <h2>Your Events</h2>
+        <button class="btn btn-primary">+ New Event</button>
+    </div>
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16">
+            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+        </svg>
+        <h3>No events yet</h3>
+        <p>Create your first event to start tracking expenses and managing your budget</p>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .page-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #999;
+    }
+
+    .empty-state svg {
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #666;
+    }
+
+    .empty-state p {
+        color: #999;
+    }
+</style>
