@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BudgetEase.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea0ab59fb71b79ca5a0b8ca6c634042478366c75")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65d4bec88150fd5aa2b8dc3c2c1e764d42e5283e")]
 [assembly: System.Reflection.AssemblyProductAttribute("BudgetEase.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BudgetEase.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
