@@ -11,8 +11,10 @@
 
 ## 📖 Documentation
 
+- **[User Flow Documentation](USER_FLOW.md)** - Complete user flow diagrams with Mermaid visualizations and API documentation
 - **[Requirements Validation](REQUIREMENTS_VALIDATION.md)** - Comprehensive analysis of requirements vs implementation
 - **[TODO Checklist](TODO.md)** - Detailed implementation checklist and roadmap
+- **[Project Structure](PROJECT_STRUCTURE.md)** - Architecture and code organization
 
 ## 🎯 Purpose
 
