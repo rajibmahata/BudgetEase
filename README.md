@@ -15,6 +15,7 @@
 - **[Requirements Validation](REQUIREMENTS_VALIDATION.md)** - Comprehensive analysis of requirements vs implementation
 - **[TODO Checklist](TODO.md)** - Detailed implementation checklist and roadmap
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Architecture and code organization
+- **[Demo Data Documentation](DEMO_DATA.md)** - Sample data and demo user credentials
 
 ## 🎯 Purpose
 
@@ -77,7 +78,7 @@ BudgetEase/
 cd src/BudgetEase.Api
 dotnet run
 ```
-API will be available at: `https://localhost:7000`
+API will be available at: `http://localhost:5108`
 
 ### Running the Web UI
 ```bash
@@ -91,8 +92,13 @@ Web UI will be available at: `https://localhost:7001`
 dotnet build
 ```
 
-### Database Migrations
-The database is created automatically on first run. Migrations are applied at startup.
+### Database & Sample Data
+The database is created automatically on first run with sample data for demonstration:
+- **Demo User:** demo@budgetease.com / Demo@123
+- **Sample Events:** 4 pre-configured events with expenses and vendors
+- See [DEMO_DATA.md](DEMO_DATA.md) for complete details
+
+To reset the database, delete `src/BudgetEase.Api/budgetease.db` and restart the API.
 
 ## 📊 API Endpoints
 
