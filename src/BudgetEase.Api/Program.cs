@@ -5,7 +5,6 @@ using BudgetEase.Infrastructure.Data;
 using BudgetEase.Infrastructure.Repositories;
 using BudgetEase.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using BudgetEase.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -96,18 +95,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Restore database from backup if needed and create database on startup
+// Create database on startup
 using (var scope = app.Services.CreateScope())
 {
-    var backupService = scope.ServiceProvider.GetRequiredService<IDatabaseBackupService>();
+    // var backupService = scope.ServiceProvider.GetRequiredService<IDatabaseBackupService>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     
     // Try to restore from latest backup if database doesn't exist
-    var restored = await backupService.RestoreLatestBackupAsync();
-    if (restored)
-    {
-        logger.LogInformation("Database restored from backup successfully");
-    }
+    // var restored = await backupService.RestoreLatestBackupAsync();
+    // if (restored)
+    // {
+    //     logger.LogInformation("Database restored from backup successfully");
+    // }
     
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();

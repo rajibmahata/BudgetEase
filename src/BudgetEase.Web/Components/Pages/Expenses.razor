@@ -29,8 +29,49 @@
 
     <div class="card-header">
         <h2>Your Expenses</h2>
-        <button class="btn btn-primary" @onclick="ShowCreateModal" disabled="@(selectedEventId == 0)">+ Add Expense</button>
+        <button class="btn btn-primary" @onclick="ToggleCreateForm" disabled="@(selectedEventId == 0)">@(showCreateForm ? "- Cancel" : "+ Add Expense")</button>
     </div>
+
+    @if (showCreateForm && selectedEventId > 0)
+    {
+        <div class="create-form-section">
+            <h3>Add New Expense</h3>
+            <form @onsubmit="CreateExpense">
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" class="form-control @GetValidationClass(nameof(newExpense.Category))" @bind="newExpense.Category" />
+                    @if (fieldErrors.ContainsKey(nameof(newExpense.Category)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newExpense.Category)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" class="form-control @GetValidationClass(nameof(newExpense.Description))" @bind="newExpense.Description" />
+                    @if (fieldErrors.ContainsKey(nameof(newExpense.Description)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newExpense.Description)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Estimated Cost</label>
+                    <input type="number" class="form-control @GetValidationClass(nameof(newExpense.EstimatedCost))" @bind="newExpense.EstimatedCost" step="0.01" />
+                    @if (fieldErrors.ContainsKey(nameof(newExpense.EstimatedCost)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newExpense.EstimatedCost)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Actual Cost</label>
+                    <input type="number" class="form-control" @bind="newExpense.ActualCost" step="0.01" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Expense</button>
+                    <button type="button" class="btn btn-secondary" @onclick="ToggleCreateForm">Cancel</button>
+                </div>
+            </form>
+        </div>
+    }
     
     @if (isLoading)
     {
@@ -84,44 +125,14 @@
     }
 </div>
 
-@if (showCreateModal)
-{
-    <div class="modal-overlay" @onclick="HideCreateModal">
-        <div class="modal-content" @onclick:stopPropagation>
-            <h3>Add New Expense</h3>
-            <form @onsubmit="CreateExpense">
-                <div class="form-group">
-                    <label>Category</label>
-                    <input type="text" class="form-control" @bind="newExpense.Category" required />
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <input type="text" class="form-control" @bind="newExpense.Description" required />
-                </div>
-                <div class="form-group">
-                    <label>Estimated Cost</label>
-                    <input type="number" class="form-control" @bind="newExpense.EstimatedCost" step="0.01" required />
-                </div>
-                <div class="form-group">
-                    <label>Actual Cost</label>
-                    <input type="number" class="form-control" @bind="newExpense.ActualCost" step="0.01" />
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">Add Expense</button>
-                    <button type="button" class="btn btn-secondary" @onclick="HideCreateModal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-}
-
 @code {
     private List<EventDto> events = new();
     private List<ExpenseDto> expenses = new();
     private int selectedEventId = 0;
     private bool isLoading = false;
-    private bool showCreateModal = false;
+    private bool showCreateForm = false;
     private CreateExpenseDto newExpense = new();
+    private Dictionary<string, string> fieldErrors = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,11 +158,13 @@
         {
             selectedEventId = eventId;
             await LoadExpenses();
+            showCreateForm = false;
         }
         else
         {
             selectedEventId = 0;
             expenses.Clear();
+            showCreateForm = false;
         }
     }
 
@@ -175,28 +188,51 @@
         }
     }
 
-    private void ShowCreateModal()
+    private void ToggleCreateForm()
     {
-        newExpense = new CreateExpenseDto
+        showCreateForm = !showCreateForm;
+        if (showCreateForm)
         {
-            EventId = selectedEventId,
-            ActualCost = 0
-        };
-        showCreateModal = true;
-    }
-
-    private void HideCreateModal()
-    {
-        showCreateModal = false;
+            newExpense = new CreateExpenseDto
+            {
+                EventId = selectedEventId,
+                ActualCost = 0
+            };
+            fieldErrors.Clear();
+        }
     }
 
     private async Task CreateExpense()
     {
+        fieldErrors.Clear();
+
+        // Client-side validation
+        if (string.IsNullOrWhiteSpace(newExpense.Category))
+        {
+            fieldErrors[nameof(newExpense.Category)] = "Category is required";
+        }
+
+        if (string.IsNullOrWhiteSpace(newExpense.Description))
+        {
+            fieldErrors[nameof(newExpense.Description)] = "Description is required";
+        }
+
+        if (newExpense.EstimatedCost <= 0)
+        {
+            fieldErrors[nameof(newExpense.EstimatedCost)] = "Estimated cost must be greater than zero";
+        }
+
+        if (fieldErrors.Any())
+        {
+            StateHasChanged();
+            return;
+        }
+
         try
         {
             await ExpenseService.CreateExpenseAsync(newExpense);
             await LoadExpenses();
-            HideCreateModal();
+            ToggleCreateForm();
         }
         catch (Exception)
         {
@@ -215,6 +251,11 @@
         {
             // Handle error
         }
+    }
+
+    private string GetValidationClass(string fieldName)
+    {
+        return fieldErrors.ContainsKey(fieldName) ? "is-invalid" : "";
     }
 }
 
@@ -388,7 +429,23 @@
         border-color: #f5576c;
     }
 
-    .modal-actions {
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-actions {
         display: flex;
         gap: 1rem;
         margin-top: 1.5rem;
@@ -405,5 +462,17 @@
 
     .mb-3 {
         margin-bottom: 1rem;
+    }
+
+    .create-form-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .create-form-section h3 {
+        margin: 0 0 1.5rem 0;
+        color: #333;
     }
 </style>
