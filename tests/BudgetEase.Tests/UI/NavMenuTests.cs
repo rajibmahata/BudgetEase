@@ -1,6 +1,8 @@
 using Bunit;
 using BudgetEase.Web.Components.Layout;
+using BudgetEase.Web.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BudgetEase.Tests.UI;
 
@@ -9,8 +11,14 @@ namespace BudgetEase.Tests.UI;
 /// </summary>
 public class NavMenuTests : TestContext
 {
+    public NavMenuTests()
+    {
+        // Register AuthStateService for all tests
+        Services.AddSingleton<AuthStateService>();
+    }
+
     [Fact]
-    public void NavMenu_RendersCorrectly()
+    public void NavMenu_RendersCorrectly_WhenUnauthenticated()
     {
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -23,10 +31,29 @@ public class NavMenuTests : TestContext
         Assert.Contains("navbar-brand", cut.Markup);
         Assert.Contains("BudgetEase", cut.Markup);
         Assert.Contains("nav-scrollable", cut.Markup);
+        
+        // Unauthenticated state shows Login and Register
+        Assert.Contains("Login", cut.Markup);
+        Assert.Contains("Register", cut.Markup);
+    }
+
+    [Fact]
+    public void NavMenu_ShowsAuthenticatedLinks_WhenLoggedIn()
+    {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
+        // Act
+        var cut = RenderComponent<NavMenu>();
+
+        // Assert
         Assert.Contains("Dashboard", cut.Markup);
         Assert.Contains("Events", cut.Markup);
         Assert.Contains("Expenses", cut.Markup);
         Assert.Contains("Vendors", cut.Markup);
+        Assert.Contains("Logout", cut.Markup);
+        Assert.Contains("testuser", cut.Markup);
     }
 
     [Fact]
@@ -43,8 +70,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_HasDashboardLink()
+    public void NavMenu_HasDashboardLink_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -57,8 +88,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_HasEventsLink()
+    public void NavMenu_HasEventsLink_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -71,8 +106,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_HasExpensesLink()
+    public void NavMenu_HasExpensesLink_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -85,8 +124,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_HasVendorsLink()
+    public void NavMenu_HasVendorsLink_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -99,8 +142,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_AllLinksHaveIcons()
+    public void NavMenu_AllLinksHaveIcons_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -115,14 +162,29 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_HasCorrectNumberOfNavigationItems()
+    public void NavMenu_HasCorrectNumberOfNavigationItems_WhenAuthenticated()
+    {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
+        // Act
+        var cut = RenderComponent<NavMenu>();
+
+        // Assert
+        var navItems = cut.FindAll(".nav-item");
+        Assert.Equal(5, navItems.Count); // Dashboard, Events, Expenses, Vendors, Logout button
+    }
+
+    [Fact]
+    public void NavMenu_HasCorrectNumberOfNavigationItems_WhenUnauthenticated()
     {
         // Act
         var cut = RenderComponent<NavMenu>();
 
         // Assert
         var navItems = cut.FindAll(".nav-item");
-        Assert.Equal(4, navItems.Count); // Dashboard, Events, Expenses, Vendors
+        Assert.Equal(2, navItems.Count); // Login, Register
     }
 
     [Fact]
@@ -139,8 +201,12 @@ public class NavMenuTests : TestContext
     }
 
     [Fact]
-    public void NavMenu_NavigationLinksAreAccessible()
+    public void NavMenu_NavigationLinksAreAccessible_WhenAuthenticated()
     {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
         // Act
         var cut = RenderComponent<NavMenu>();
 
@@ -155,5 +221,37 @@ public class NavMenuTests : TestContext
             
             Assert.True(hasText || hasAriaLabel, "Navigation link should have text or aria-label for accessibility");
         }
+    }
+
+    [Fact]
+    public void NavMenu_ShowsLoginAndRegister_WhenUnauthenticated()
+    {
+        // Act
+        var cut = RenderComponent<NavMenu>();
+
+        // Assert
+        var links = cut.FindAll("a.nav-link");
+        var loginLink = links.FirstOrDefault(l => l.TextContent.Contains("Login"));
+        var registerLink = links.FirstOrDefault(l => l.TextContent.Contains("Register"));
+        
+        Assert.NotNull(loginLink);
+        Assert.NotNull(registerLink);
+        Assert.Equal("login", loginLink.GetAttribute("href"));
+        Assert.Equal("register", registerLink.GetAttribute("href"));
+    }
+
+    [Fact]
+    public void NavMenu_HidesLoginAndRegister_WhenAuthenticated()
+    {
+        // Arrange
+        var authState = Services.GetRequiredService<AuthStateService>();
+        authState.Login("testuser");
+
+        // Act
+        var cut = RenderComponent<NavMenu>();
+
+        // Assert
+        Assert.DoesNotContain("login", cut.Markup.ToLower());
+        Assert.DoesNotContain("register", cut.Markup.ToLower());
     }
 }
