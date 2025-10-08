@@ -405,6 +405,9 @@ FodyWeavers.xsd
 *.sqlite
 *.sqlite3
 
+# Database backups
+DatabaseBackups/
+
 # Rider
 .idea/
 
