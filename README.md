@@ -16,6 +16,7 @@
 - **[TODO Checklist](TODO.md)** - Detailed implementation checklist and roadmap
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Architecture and code organization
 - **[Demo Data Documentation](DEMO_DATA.md)** - Sample data and demo user credentials
+- **[Database Backup & Restore](DATABASE_BACKUP.md)** - Automatic backup system documentation
 
 ## 🎯 Purpose
 
@@ -34,6 +35,7 @@ A lightweight web application for managing and tracking expenses for personal or
 - ✅ **Multi-user Support** - Event owner and collaborator roles
 - ✅ **RESTful API** - Complete API endpoints for all features
 - ✅ **SQLite Database** - Lightweight database with Entity Framework Core
+- ✅ **Database Backup & Restore** - Automatic daily backups with restore on startup
 
 ### In Progress / Planned
 - ⏳ **User Authentication** - Login, register, password recovery
