@@ -1,7 +1,9 @@
+using BudgetEase.Api.BackgroundServices;
 using BudgetEase.Core.Entities;
 using BudgetEase.Core.Interfaces;
 using BudgetEase.Infrastructure.Data;
 using BudgetEase.Infrastructure.Repositories;
+using BudgetEase.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using BudgetEase.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
@@ -61,9 +63,11 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 
-// Register database backup service
-builder.Services.AddSingleton<IDatabaseBackupService, DatabaseBackupService>();
-builder.Services.AddHostedService<DatabaseBackupBackgroundService>();
+// Register services
+builder.Services.AddScoped<IBackupCleanupService, BackupCleanupService>();
+
+// Register background services
+builder.Services.AddHostedService<BackupCleanupBackgroundService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
