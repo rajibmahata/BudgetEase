@@ -14,8 +14,66 @@
 <div class="content-card">
     <div class="card-header">
         <h2>Your Events</h2>
-        <button class="btn btn-primary" @onclick="ShowCreateModal">+ New Event</button>
+        <button class="btn btn-primary" @onclick="ToggleCreateForm">@(showCreateForm ? "- Cancel" : "+ New Event")</button>
     </div>
+
+    @if (showCreateForm)
+    {
+        <div class="create-form-section">
+            <h3>Create New Event</h3>
+            <form @onsubmit="CreateEvent">
+                <div class="form-group">
+                    <label>Event Name</label>
+                    <input type="text" class="form-control @GetValidationClass(nameof(newEvent.Name))" @bind="newEvent.Name" />
+                    @if (fieldErrors.ContainsKey(nameof(newEvent.Name)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newEvent.Name)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select class="form-control @GetValidationClass(nameof(newEvent.Type))" @bind="newEvent.Type">
+                        <option value="">-- Select Event Type --</option>
+                        <option value="Marriage">Marriage</option>
+                        <option value="Birthday">Birthday</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    @if (fieldErrors.ContainsKey(nameof(newEvent.Type)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newEvent.Type)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" class="form-control @GetValidationClass(nameof(newEvent.EventDate))" @bind="newEvent.EventDate" />
+                    @if (fieldErrors.ContainsKey(nameof(newEvent.EventDate)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newEvent.EventDate)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" class="form-control @GetValidationClass(nameof(newEvent.Venue))" @bind="newEvent.Venue" />
+                    @if (fieldErrors.ContainsKey(nameof(newEvent.Venue)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newEvent.Venue)]</span>
+                    }
+                </div>
+                <div class="form-group">
+                    <label>Budget Limit</label>
+                    <input type="number" class="form-control @GetValidationClass(nameof(newEvent.BudgetLimit))" @bind="newEvent.BudgetLimit" step="0.01" />
+                    @if (fieldErrors.ContainsKey(nameof(newEvent.BudgetLimit)))
+                    {
+                        <span class="validation-message">@fieldErrors[nameof(newEvent.BudgetLimit)]</span>
+                    }
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                    <button type="button" class="btn btn-secondary" @onclick="ToggleCreateForm">Cancel</button>
+                </div>
+            </form>
+        </div>
+    }
     
     @if (isLoading)
     {
@@ -55,46 +113,12 @@
     }
 </div>
 
-@if (showCreateModal)
-{
-    <div class="modal-overlay" @onclick="HideCreateModal">
-        <div class="modal-content" @onclick:stopPropagation>
-            <h3>Create New Event</h3>
-            <form @onsubmit="CreateEvent">
-                <div class="form-group">
-                    <label>Event Name</label>
-                    <input type="text" class="form-control" @bind="newEvent.Name" required />
-                </div>
-                <div class="form-group">
-                    <label>Event Type</label>
-                    <input type="text" class="form-control" @bind="newEvent.Type" required />
-                </div>
-                <div class="form-group">
-                    <label>Event Date</label>
-                    <input type="date" class="form-control" @bind="newEvent.EventDate" required />
-                </div>
-                <div class="form-group">
-                    <label>Venue</label>
-                    <input type="text" class="form-control" @bind="newEvent.Venue" required />
-                </div>
-                <div class="form-group">
-                    <label>Budget Limit</label>
-                    <input type="number" class="form-control" @bind="newEvent.BudgetLimit" step="0.01" required />
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">Create Event</button>
-                    <button type="button" class="btn btn-secondary" @onclick="HideCreateModal">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-}
-
 @code {
     private List<EventDto> events = new();
     private bool isLoading = true;
-    private bool showCreateModal = false;
+    private bool showCreateForm = false;
     private CreateEventDto newEvent = new();
+    private Dictionary<string, string> fieldErrors = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,27 +143,60 @@
         }
     }
 
-    private void ShowCreateModal()
+    private void ToggleCreateForm()
     {
-        newEvent = new CreateEventDto
+        showCreateForm = !showCreateForm;
+        if (showCreateForm)
         {
-            EventDate = DateTime.Today
-        };
-        showCreateModal = true;
-    }
-
-    private void HideCreateModal()
-    {
-        showCreateModal = false;
+            newEvent = new CreateEventDto
+            {
+                EventDate = DateTime.Today
+            };
+            fieldErrors.Clear();
+        }
     }
 
     private async Task CreateEvent()
     {
+        fieldErrors.Clear();
+
+        // Client-side validation
+        if (string.IsNullOrWhiteSpace(newEvent.Name))
+        {
+            fieldErrors[nameof(newEvent.Name)] = "Event name is required";
+        }
+
+        if (string.IsNullOrWhiteSpace(newEvent.Type))
+        {
+            fieldErrors[nameof(newEvent.Type)] = "Event type is required";
+        }
+
+        if (newEvent.EventDate == default(DateTime))
+        {
+            fieldErrors[nameof(newEvent.EventDate)] = "Event date is required";
+        }
+
+        if (string.IsNullOrWhiteSpace(newEvent.Venue))
+        {
+            fieldErrors[nameof(newEvent.Venue)] = "Venue is required";
+        }
+
+        if (newEvent.BudgetLimit <= 0)
+        {
+            fieldErrors[nameof(newEvent.BudgetLimit)] = "Budget limit must be greater than zero";
+        }
+
+        if (fieldErrors.Any())
+        {
+            StateHasChanged();
+            return;
+        }
+
         try
         {
             await EventService.CreateEventAsync(newEvent);
             await LoadEvents();
-            HideCreateModal();
+            ToggleCreateForm();
         }
         catch (Exception)
         {
@@ -167,6 +224,11 @@
     {
         // Simple confirmation - in production, use a proper modal
         return true;
+    }
+
+    private string GetValidationClass(string fieldName)
+    {
+        return fieldErrors.ContainsKey(fieldName) ? "is-invalid" : "";
     }
 }
 
@@ -345,7 +407,23 @@
         border-color: #667eea;
     }
 
-    .modal-actions {
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-actions {
         display: flex;
         gap: 1rem;
         margin-top: 1.5rem;
@@ -358,5 +436,17 @@
 
     .btn-secondary:hover {
         background: #5a6268;
+    }
+
+    .create-form-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .create-form-section h3 {
+        margin: 0 0 1.5rem 0;
+        color: #333;
     }
 </style>
