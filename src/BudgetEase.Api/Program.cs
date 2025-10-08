@@ -2,9 +2,12 @@ using BudgetEase.Core.Entities;
 using BudgetEase.Core.Interfaces;
 using BudgetEase.Infrastructure.Data;
 using BudgetEase.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using BudgetEase.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using static BudgetEase.Infrastructure.Data.DatabaseSeeder;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,9 +28,33 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"] ?? "DefaultSecretKey_MinimumLength32Characters_ForDevelopment";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"] ?? "BudgetEase",
+        ValidAudience = jwtSettings["Audience"] ?? "BudgetEaseUsers",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+    };
+});
 
 // Register repositories
 builder.Services.AddScoped<IEventRepository, EventRepository>();

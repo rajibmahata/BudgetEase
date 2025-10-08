@@ -20,6 +20,10 @@ builder.Services.AddHttpClient<ExpenseService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5108");
 });
+builder.Services.AddHttpClient<AuthService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5108");
+});
 
 // Add authentication state service
 builder.Services.AddSingleton<AuthStateService>();
