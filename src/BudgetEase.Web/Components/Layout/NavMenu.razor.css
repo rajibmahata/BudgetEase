@@ -164,6 +164,7 @@
 
 .nav-scrollable {
     display: none;
+    transition: opacity 0.2s ease-in-out;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
