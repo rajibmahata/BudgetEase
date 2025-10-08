@@ -1,5 +1,7 @@
 @page "/login"
+@using BudgetEase.Core.DTOs
 @using BudgetEase.Web.Services
+@inject AuthService AuthService
 @inject AuthStateService AuthState
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
@@ -13,15 +15,44 @@
             <p>Sign in to manage your event budgets</p>
         </div>
 
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">
+                @errorMessage
+            </div>
+        }
+
+        @if (validationErrors.Any())
+        {
+            <div class="alert alert-error">
+                <ul>
+                    @foreach (var error in validationErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
         <form class="auth-form" @onsubmit="HandleLogin">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-control" placeholder="Enter your email" @bind="email" required />
+                <input type="email" class="form-control @GetValidationClass(nameof(loginRequest.Email))" 
+                       placeholder="Enter your email" @bind="loginRequest.Email" required />
+                @if (fieldErrors.ContainsKey(nameof(loginRequest.Email)))
+                {
+                    <span class="validation-message">@fieldErrors[nameof(loginRequest.Email)]</span>
+                }
             </div>
 
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-control" placeholder="Enter your password" @bind="password" required />
+                <input type="password" class="form-control @GetValidationClass(nameof(loginRequest.Password))" 
+                       placeholder="Enter your password" @bind="loginRequest.Password" required />
+                @if (fieldErrors.ContainsKey(nameof(loginRequest.Password)))
+                {
+                    <span class="validation-message">@fieldErrors[nameof(loginRequest.Password)]</span>
+                }
             </div>
 
             <div class="form-options">
@@ -32,7 +63,16 @@
                 <a href="#" class="forgot-link">Forgot password?</a>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <button type="submit" class="btn btn-primary btn-block" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span>Signing In...</span>
+                }
+                else
+                {
+                    <span>Sign In</span>
+                }
+            </button>
         </form>
 
         <div class="auth-footer">
@@ -42,18 +82,93 @@
 </div>
 
 @code {
-    private string email = "";
-    private string password = "";
+    private LoginRequest loginRequest = new LoginRequest();
     private bool rememberMe = false;
+    private bool isLoading = false;
+    private string errorMessage = "";
+    private List<string> validationErrors = new List<string>();
+    private Dictionary<string, string> fieldErrors = new Dictionary<string, string>();
 
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
-        // For now, accept any email/password combination for demo purposes
-        // Extract username from email (part before @)
-        var userName = email.Contains('@') ? email.Split('@')[0] : email;
-        
-        AuthState.Login(userName);
-        Navigation.NavigateTo("/");
+        errorMessage = "";
+        validationErrors.Clear();
+        fieldErrors.Clear();
+
+        // Client-side validation
+        if (string.IsNullOrWhiteSpace(loginRequest.Email))
+        {
+            fieldErrors[nameof(loginRequest.Email)] = "Email is required";
+        }
+        else if (!IsValidEmail(loginRequest.Email))
+        {
+            fieldErrors[nameof(loginRequest.Email)] = "Invalid email format";
+        }
+
+        if (string.IsNullOrWhiteSpace(loginRequest.Password))
+        {
+            fieldErrors[nameof(loginRequest.Password)] = "Password is required";
+        }
+
+        if (fieldErrors.Any())
+        {
+            return;
+        }
+
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await AuthService.LoginAsync(loginRequest);
+
+            if (result.Success)
+            {
+                // Store user info in auth state
+                AuthState.Login(result.FirstName ?? result.Email ?? "User");
+                
+                // Navigate to home/dashboard
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                if (result.Errors != null && result.Errors.Any())
+                {
+                    validationErrors = result.Errors;
+                }
+                else
+                {
+                    errorMessage = result.Message ?? "Login failed. Please check your credentials.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetValidationClass(string fieldName)
+    {
+        return fieldErrors.ContainsKey(fieldName) ? "is-invalid" : "";
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 
@@ -121,6 +236,43 @@
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        color: #842029;
+    }
+
+    .alert-error ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .alert-error li {
+        margin: 0.25rem 0;
     }
 
     .form-options {
