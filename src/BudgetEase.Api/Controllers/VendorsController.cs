@@ -1,12 +1,14 @@
 using BudgetEase.Core.DTOs;
 using BudgetEase.Core.Entities;
 using BudgetEase.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetEase.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class VendorsController : ControllerBase
 {
     private readonly IVendorRepository _vendorRepository;
