@@ -4,10 +4,10 @@
 
 ## 📋 Project Status
 
-**Current Version:** 0.6 (In Development)  
-**Overall Completion:** ~65%
-- Backend: ~85% Complete
-- Frontend: ~60% Complete
+**Current Version:** 0.7 (In Development)  
+**Overall Completion:** ~70%
+- Backend: ~90% Complete
+- Frontend: ~65% Complete
 
 ## 📖 Documentation
 
