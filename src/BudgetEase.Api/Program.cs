@@ -64,9 +64,11 @@ builder.Services.AddScoped<IVendorRepository, VendorRepository>();
 
 // Register services
 builder.Services.AddScoped<IBackupCleanupService, BackupCleanupService>();
+builder.Services.AddScoped<IDatabaseBackupService, DatabaseBackupService>();
 
 // Register background services
 builder.Services.AddHostedService<BackupCleanupBackgroundService>();
+builder.Services.AddHostedService<DatabaseBackupBackgroundService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -98,15 +100,15 @@ app.MapControllers();
 // Create database on startup
 using (var scope = app.Services.CreateScope())
 {
-    // var backupService = scope.ServiceProvider.GetRequiredService<IDatabaseBackupService>();
+    var backupService = scope.ServiceProvider.GetRequiredService<IDatabaseBackupService>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     
     // Try to restore from latest backup if database doesn't exist
-    // var restored = await backupService.RestoreLatestBackupAsync();
-    // if (restored)
-    // {
-    //     logger.LogInformation("Database restored from backup successfully");
-    // }
+    var restored = await backupService.RestoreLatestBackupAsync();
+    if (restored)
+    {
+        logger.LogInformation("Database restored from backup successfully");
+    }
     
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
