@@ -1,5 +1,8 @@
 using Bunit;
 using BudgetEase.Web.Components.Pages;
+using BudgetEase.Web.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace BudgetEase.Tests.UI;
 
@@ -8,6 +11,18 @@ namespace BudgetEase.Tests.UI;
 /// </summary>
 public class ButtonInteractionTests : TestContext
 {
+    public ButtonInteractionTests()
+    {
+        // Register mock services for all tests
+        var mockEventService = new Mock<EventService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        var mockExpenseService = new Mock<ExpenseService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        var mockVendorService = new Mock<VendorService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        
+        Services.AddSingleton(mockEventService.Object);
+        Services.AddSingleton(mockExpenseService.Object);
+        Services.AddSingleton(mockVendorService.Object);
+    }
+
     [Fact]
     public void EventsPage_NewEventButton_HasCorrectStyling()
     {
@@ -53,8 +68,8 @@ public class ButtonInteractionTests : TestContext
         var cut = RenderComponent<Expenses>();
         var button = cut.Find("button.btn-primary");
 
-        // Assert - Button should be enabled and clickable
-        Assert.False(button.HasAttribute("disabled"));
+        // Assert - Button should be disabled when no event is selected
+        Assert.True(button.HasAttribute("disabled"));
     }
 
     [Fact]
@@ -77,8 +92,8 @@ public class ButtonInteractionTests : TestContext
         var cut = RenderComponent<Vendors>();
         var button = cut.Find("button.btn-primary");
 
-        // Assert - Button should be enabled and clickable
-        Assert.False(button.HasAttribute("disabled"));
+        // Assert - Button should be disabled when no event is selected
+        Assert.True(button.HasAttribute("disabled"));
     }
 
     [Fact]

@@ -1,6 +1,9 @@
 using Bunit;
 using BudgetEase.Web.Components.Pages;
+using BudgetEase.Web.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace BudgetEase.Tests.UI;
 
@@ -9,6 +12,18 @@ namespace BudgetEase.Tests.UI;
 /// </summary>
 public class PageRoutingTests : TestContext
 {
+    public PageRoutingTests()
+    {
+        // Register mock services for all tests
+        var mockEventService = new Mock<EventService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        var mockExpenseService = new Mock<ExpenseService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        var mockVendorService = new Mock<VendorService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        
+        Services.AddSingleton(mockEventService.Object);
+        Services.AddSingleton(mockExpenseService.Object);
+        Services.AddSingleton(mockVendorService.Object);
+    }
+
     [Fact]
     public void HomePage_HasCorrectRoute()
     {
@@ -149,7 +164,8 @@ public class PageRoutingTests : TestContext
         // Assert
         var emptyState = cut.Find(".empty-state");
         Assert.NotNull(emptyState);
-        Assert.Contains("No expenses recorded", emptyState.TextContent);
+        // When no event is selected, it shows "Select an event first"
+        Assert.Contains("Select an event first", emptyState.TextContent);
     }
 
     [Fact]
@@ -195,7 +211,8 @@ public class PageRoutingTests : TestContext
         // Assert
         var emptyState = cut.Find(".empty-state");
         Assert.NotNull(emptyState);
-        Assert.Contains("No vendors added", emptyState.TextContent);
+        // When no event is selected, it shows "Select an event first"
+        Assert.Contains("Select an event first", emptyState.TextContent);
     }
 
 
