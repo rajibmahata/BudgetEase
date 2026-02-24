@@ -14,10 +14,16 @@ public class PageRoutingTests : TestContext
 {
     public PageRoutingTests()
     {
-        // Register mock services for all tests
-        var mockEventService = new Mock<EventService>(MockBehavior.Loose, new object[] { new HttpClient() });
-        var mockExpenseService = new Mock<ExpenseService>(MockBehavior.Loose, new object[] { new HttpClient() });
-        var mockVendorService = new Mock<VendorService>(MockBehavior.Loose, new object[] { new HttpClient() });
+        // Register auth services and login so auth-guarded pages render
+        var authState = new AuthStateService();
+        var authTokenHandler = new AuthTokenHandler(authState);
+        authState.Login("testuser", "fake-jwt-token");
+        Services.AddSingleton(authState);
+
+        // Register mock services with updated constructor signatures
+        var mockEventService = new Mock<EventService>(MockBehavior.Loose, new object[] { new HttpClient(), authTokenHandler });
+        var mockExpenseService = new Mock<ExpenseService>(MockBehavior.Loose, new object[] { new HttpClient(), authTokenHandler });
+        var mockVendorService = new Mock<VendorService>(MockBehavior.Loose, new object[] { new HttpClient(), authTokenHandler });
         
         Services.AddSingleton(mockEventService.Object);
         Services.AddSingleton(mockExpenseService.Object);
@@ -43,7 +49,7 @@ public class PageRoutingTests : TestContext
         // Assert
         var pageTitle = cut.Find("h1.dashboard-title");
         Assert.NotNull(pageTitle);
-        Assert.Contains("Welcome to BudgetEase", pageTitle.TextContent);
+        Assert.Contains("Welcome back", pageTitle.TextContent);
     }
 
     [Fact]

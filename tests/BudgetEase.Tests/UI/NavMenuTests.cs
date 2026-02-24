@@ -42,7 +42,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -74,7 +74,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -92,7 +92,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -110,7 +110,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -128,7 +128,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -146,7 +146,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -166,7 +166,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -205,7 +205,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
@@ -245,7 +245,7 @@ public class NavMenuTests : TestContext
     {
         // Arrange
         var authState = Services.GetRequiredService<AuthStateService>();
-        authState.Login("testuser");
+        authState.Login("testuser", "fake-jwt-token");
 
         // Act
         var cut = RenderComponent<NavMenu>();
