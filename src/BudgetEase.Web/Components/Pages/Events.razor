@@ -2,6 +2,7 @@
 @using BudgetEase.Core.DTOs
 @using BudgetEase.Web.Services
 @inject EventService EventService
+@inject AuthStateService AuthState
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
@@ -123,6 +124,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!AuthState.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
         await LoadEvents();
     }
 

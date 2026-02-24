@@ -3,6 +3,8 @@
 @using BudgetEase.Web.Services
 @inject ExpenseService ExpenseService
 @inject EventService EventService
+@inject AuthStateService AuthState
+@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
 <PageTitle>Expenses - BudgetEase</PageTitle>
@@ -136,6 +138,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!AuthState.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
         await LoadEvents();
     }
 

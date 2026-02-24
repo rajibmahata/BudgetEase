@@ -7,9 +7,10 @@ public class VendorService
 {
     private readonly HttpClient _httpClient;
 
-    public VendorService(HttpClient httpClient)
+    public VendorService(HttpClient httpClient, AuthTokenHandler authTokenHandler)
     {
         _httpClient = httpClient;
+        authTokenHandler.ConfigureClient(_httpClient);
     }
 
     public async Task<IEnumerable<VendorDto>> GetVendorsByEventAsync(int eventId)

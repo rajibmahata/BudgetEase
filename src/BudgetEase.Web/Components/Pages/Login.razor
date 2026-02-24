@@ -122,10 +122,14 @@
         {
             var result = await AuthService.LoginAsync(loginRequest);
 
-            if (result.Success)
+        if (result.Success)
             {
-                // Store user info in auth state
-                AuthState.Login(result.FirstName ?? result.Email ?? "User");
+                // Store user info and token in auth state
+                AuthState.Login(
+                    result.FirstName ?? result.Email ?? "User",
+                    result.Token ?? string.Empty,
+                    result.UserId,
+                    result.Email);
                 
                 // Navigate to home/dashboard
                 Navigation.NavigateTo("/");

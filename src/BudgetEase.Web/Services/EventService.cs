@@ -7,9 +7,10 @@ public class EventService
 {
     private readonly HttpClient _httpClient;
 
-    public EventService(HttpClient httpClient)
+    public EventService(HttpClient httpClient, AuthTokenHandler authTokenHandler)
     {
         _httpClient = httpClient;
+        authTokenHandler.ConfigureClient(_httpClient);
     }
 
     public async Task<IEnumerable<EventDto>> GetAllEventsAsync()

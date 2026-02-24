@@ -25,8 +25,9 @@ builder.Services.AddHttpClient<AuthService>(client =>
     client.BaseAddress = new Uri("http://localhost:5108");
 });
 
-// Add authentication state service
-builder.Services.AddSingleton<AuthStateService>();
+// Add authentication state service (Scoped = per Blazor Server circuit)
+builder.Services.AddScoped<AuthStateService>();
+builder.Services.AddScoped<AuthTokenHandler>();
 
 var app = builder.Build();
 

@@ -7,9 +7,10 @@ public class ExpenseService
 {
     private readonly HttpClient _httpClient;
 
-    public ExpenseService(HttpClient httpClient)
+    public ExpenseService(HttpClient httpClient, AuthTokenHandler authTokenHandler)
     {
         _httpClient = httpClient;
+        authTokenHandler.ConfigureClient(_httpClient);
     }
 
     public async Task<IEnumerable<ExpenseDto>> GetExpensesByEventAsync(int eventId)
