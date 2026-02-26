@@ -1,0 +1,7 @@
+warning: in the working copy of 'tests/BudgetEase.Tests/UI/ButtonInteractionTests.cs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/BudgetEase.Tests/UI/PageRoutingTests.cs', LF will be replaced by CRLF the next time Git touches it
+ src/BudgetEase.Web/Components/Pages/Home.razor     | 167 [32m+++++++++++++++++++[m[31m--[m
+ .../BudgetEase.Tests/UI/ButtonInteractionTests.cs  |  14 [32m+[m[31m-[m
+ tests/BudgetEase.Tests/UI/NavMenuTests.cs          |  18 [32m+[m[31m--[m
+ tests/BudgetEase.Tests/UI/PageRoutingTests.cs      |  16 [32m+[m[31m-[m
+ 4 files changed, 188 insertions(+), 27 deletions(-)

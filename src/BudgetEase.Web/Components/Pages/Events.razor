@@ -36,8 +36,11 @@
                     <label>Event Type</label>
                     <select class="form-control @GetValidationClass(nameof(newEvent.Type))" @bind="newEvent.Type">
                         <option value="">-- Select Event Type --</option>
+                        <option value="Wedding">Wedding</option>
                         <option value="Marriage">Marriage</option>
                         <option value="Birthday">Birthday</option>
+                        <option value="Anniversary">Anniversary</option>
+                        <option value="Corporate">Corporate</option>
                         <option value="Others">Others</option>
                     </select>
                     @if (fieldErrors.ContainsKey(nameof(newEvent.Type)))
@@ -77,6 +80,14 @@
         </div>
     }
     
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = string.Empty"></button>
+        </div>
+    }
+
     @if (isLoading)
     {
         <div class="text-center p-4">
@@ -99,28 +110,103 @@
         <div class="events-list">
             @foreach (var evt in events)
             {
+                var budgetUsedPct = evt.BudgetLimit > 0 ? Math.Min((int)(evt.TotalSpent / evt.BudgetLimit * 100), 100) : 0;
+                var barColor = budgetUsedPct >= 90 ? "#dc3545" : budgetUsedPct >= 70 ? "#fd7e14" : "#667eea";
                 <div class="event-item">
                     <div class="event-info">
                         <h3>@evt.Name</h3>
-                        <p>@evt.Type - @evt.EventDate.ToString("MMM dd, yyyy")</p>
-                        <p>Venue: @evt.Venue</p>
-                        <p class="budget">Budget: $@evt.BudgetLimit - Spent: $@evt.TotalSpent</p>
+                        <p><span class="event-type-badge">@evt.Type</span> &nbsp; 📅 @evt.EventDate.ToString("MMM dd, yyyy")</p>
+                        @if (!string.IsNullOrEmpty(evt.Venue))
+                        {
+                            <p>📍 @evt.Venue</p>
+                        }
+                        <div class="budget-progress">
+                            <div class="budget-bar-track">
+                                <div class="budget-bar-fill" style="width:@budgetUsedPct%; background:@barColor"></div>
+                            </div>
+                            <span class="budget-text">$@evt.TotalSpent.ToString("N0") spent of $@evt.BudgetLimit.ToString("N0") (@budgetUsedPct%)</span>
+                        </div>
                     </div>
                     <div class="event-actions">
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteEvent(evt.Id)">Delete</button>
+                        <button class="btn btn-sm btn-secondary me-1" @onclick="() => OpenEditModal(evt)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(evt.Id, evt.Name)">Delete</button>
                     </div>
                 </div>
             }
         </div>
     }
+
+    @if (showDeleteConfirm)
+    {
+        <div class="modal-overlay" @onclick="CancelDelete">
+            <div class="modal-content" @onclick:stopPropagation="true">
+                <h3>⚠️ Confirm Delete</h3>
+                <p>Are you sure you want to delete <strong>@deleteEventName</strong>? This will also delete all associated expenses and vendors.</p>
+                <div class="form-actions">
+                    <button class="btn btn-danger" @onclick="ExecuteDelete">Yes, Delete</button>
+                    <button class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (showEditModal && editEvent != null)
+    {
+        <div class="modal-overlay" @onclick="CloseEditModal">
+            <div class="modal-content" @onclick:stopPropagation="true">
+                <h3>✏️ Edit Event</h3>
+                <form @onsubmit="SaveEdit">
+                    <div class="form-group">
+                        <label>Event Name</label>
+                        <input type="text" class="form-control" @bind="editEvent.Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select class="form-control" @bind="editEvent.Type">
+                            <option value="Wedding">Wedding</option>
+                            <option value="Marriage">Marriage</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Anniversary">Anniversary</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Event Date</label>
+                        <input type="date" class="form-control" @bind="editEvent.EventDate" />
+                    </div>
+                    <div class="form-group">
+                        <label>Venue</label>
+                        <input type="text" class="form-control" @bind="editEvent.Venue" />
+                    </div>
+                    <div class="form-group">
+                        <label>Budget Limit ($)</label>
+                        <input type="number" class="form-control" @bind="editEvent.BudgetLimit" step="0.01" />
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
 </div>
 
 @code {
     private List<EventDto> events = new();
     private bool isLoading = true;
     private bool showCreateForm = false;
+    private bool showDeleteConfirm = false;
+    private bool showEditModal = false;
     private CreateEventDto newEvent = new();
-    private Dictionary<string, string> fieldErrors = new Dictionary<string, string>();
+    private UpdateEventDto? editEvent = null;
+    private int deleteEventId;
+    private string deleteEventName = string.Empty;
+    private int editEventId;
+    private string errorMessage = string.Empty;
+    private Dictionary<string, string> fieldErrors = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,14 +221,15 @@
     private async Task LoadEvents()
     {
         isLoading = true;
+        errorMessage = string.Empty;
         try
         {
             var result = await EventService.GetAllEventsAsync();
             events = result.ToList();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Handle error - in production, show error message to user
+            errorMessage = $"Failed to load events: {ex.Message}";
         }
         finally
         {
@@ -155,10 +242,7 @@
         showCreateForm = !showCreateForm;
         if (showCreateForm)
         {
-            newEvent = new CreateEventDto
-            {
-                EventDate = DateTime.Today
-            };
+            newEvent = new CreateEventDto { EventDate = DateTime.Today };
             fieldErrors.Clear();
         }
     }
@@ -166,38 +250,17 @@
     private async Task CreateEvent()
     {
         fieldErrors.Clear();
-
-        // Client-side validation
         if (string.IsNullOrWhiteSpace(newEvent.Name))
-        {
             fieldErrors[nameof(newEvent.Name)] = "Event name is required";
-        }
-
         if (string.IsNullOrWhiteSpace(newEvent.Type))
-        {
             fieldErrors[nameof(newEvent.Type)] = "Event type is required";
-        }
-
-        if (newEvent.EventDate == default(DateTime))
-        {
+        if (newEvent.EventDate == default)
             fieldErrors[nameof(newEvent.EventDate)] = "Event date is required";
-        }
-
         if (string.IsNullOrWhiteSpace(newEvent.Venue))
-        {
             fieldErrors[nameof(newEvent.Venue)] = "Venue is required";
-        }
-
         if (newEvent.BudgetLimit <= 0)
-        {
             fieldErrors[nameof(newEvent.BudgetLimit)] = "Budget limit must be greater than zero";
-        }
-
-        if (fieldErrors.Any())
-        {
-            StateHasChanged();
-            return;
-        }
+        if (fieldErrors.Any()) { StateHasChanged(); return; }
 
         try
         {
@@ -205,38 +268,68 @@
             await LoadEvents();
             ToggleCreateForm();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Handle error - in production, show error message to user
+            errorMessage = $"Failed to create event: {ex.Message}";
         }
     }
 
-    private async Task DeleteEvent(int id)
+    private void ConfirmDelete(int id, string name)
     {
-        if (confirm("Are you sure you want to delete this event?"))
+        deleteEventId = id;
+        deleteEventName = name;
+        showDeleteConfirm = true;
+    }
+
+    private void CancelDelete() => showDeleteConfirm = false;
+
+    private async Task ExecuteDelete()
+    {
+        showDeleteConfirm = false;
+        try
         {
-            try
-            {
-                await EventService.DeleteEventAsync(id);
-                await LoadEvents();
-            }
-            catch (Exception)
-            {
-                // Handle error - in production, show error message to user
-            }
+            await EventService.DeleteEventAsync(deleteEventId);
+            await LoadEvents();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to delete event: {ex.Message}";
         }
     }
 
-    private bool confirm(string message)
+    private void OpenEditModal(EventDto evt)
     {
-        // Simple confirmation - in production, use a proper modal
-        return true;
+        editEventId = evt.Id;
+        editEvent = new UpdateEventDto
+        {
+            Name = evt.Name,
+            Type = evt.Type,
+            EventDate = evt.EventDate,
+            Venue = evt.Venue,
+            BudgetLimit = evt.BudgetLimit
+        };
+        showEditModal = true;
+    }
+
+    private void CloseEditModal() => showEditModal = false;
+
+    private async Task SaveEdit()
+    {
+        if (editEvent == null) return;
+        try
+        {
+            await EventService.UpdateEventAsync(editEventId, editEvent);
+            await LoadEvents();
+            CloseEditModal();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to update event: {ex.Message}";
+        }
     }
 
     private string GetValidationClass(string fieldName)
-    {
-        return fieldErrors.ContainsKey(fieldName) ? "is-invalid" : "";
-    }
+        => fieldErrors.ContainsKey(fieldName) ? "is-invalid" : "";
 }
 
 <style>
@@ -346,6 +439,68 @@
     .event-info p.budget {
         font-weight: 600;
         color: #667eea;
+    }
+
+    .event-type-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        background: #e8eeff;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .budget-progress {
+        margin-top: 0.5rem;
+    }
+
+    .budget-bar-track {
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 0.25rem;
+    }
+
+    .budget-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+    }
+
+    .budget-text {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .alert-dismissible {
+        position: relative;
+        padding-right: 3rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #842029;
+        border: 1px solid #f5c2c7;
+    }
+
+    .btn-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: inherit;
+    }
+
+    .me-1 {
+        margin-right: 0.25rem;
     }
 
     .btn-sm {

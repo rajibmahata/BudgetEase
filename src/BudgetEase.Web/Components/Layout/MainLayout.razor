@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using BudgetEase.Web.Services
+@inherits LayoutComponentBase
+@inject AuthStateService AuthState
+@inject NavigationManager Navigation
 
 <div class="page">
     <div class="sidebar">
@@ -6,8 +9,12 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 auth">
+            <span class="app-breadcrumb">💼 BudgetEase</span>
+            @if (AuthState.IsAuthenticated)
+            {
+                <span class="top-row-user">👤 @AuthState.UserName</span>
+            }
         </div>
 
         <article class="content px-4">
@@ -21,3 +28,18 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+<style>
+    .app-breadcrumb {
+        color: #555;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .top-row-user {
+        margin-left: auto;
+        color: #667eea;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+</style>
+
